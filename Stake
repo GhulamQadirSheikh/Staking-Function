@@ -1,0 +1,27 @@
+pragma solidity ^0.8.0;
+
+contract Staking {
+    mapping(address => uint256) public balances;
+    mapping(address => uint256) public stakingTime;
+
+    function stake(uint256 amount) public {
+        require(amount > 0, "Cannot stake 0 tokens");
+        balances[msg.sender] += amount;
+        stakingTime[msg.sender] = block.timestamp;
+        // transfer the tokens from the user to this contract
+    }
+
+    function withdraw() public {
+        require(balances[msg.sender] > 0, "No tokens to withdraw");
+        uint256 balance = balances[msg.sender];
+        uint256 reward = calculateReward(msg.sender);
+        balances[msg.sender] = 0;
+        // transfer the tokens and reward to the user
+    }
+
+    function calculateReward(address user) public view returns (uint256) {
+        uint256 timeElapsed = block.timestamp - stakingTime[user];
+        uint256 rate = 10; // 10% annual reward rate
+        return balances[user] * rate * timeElapsed / (365 days * 100);
+    }
+}
